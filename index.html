@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Iowa Gambling Task</title>
+    <link rel="stylesheet" href="css/igt.css">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1 class="game-title">Iowa Gambling Task</h1>
+            <div class="subject-input">
+                <label for="subject-id">受試者編號：</label>
+                <input type="text" id="subject-id" placeholder="4碼數字" maxlength="4" />
+            </div>
+        </header>
+
+        <main>
+            <h2 id="trial-label">已選擇 <span id="trial-number">0</span>/30 次<br>請選擇一個牌組：</h2>
+            <div class="buttons">
+                <div class="card-container">
+                    <span class="card-label">A</span>
+                    <button class="card-button" id="btn-A" onclick="playRound('A')">
+                        <img src="images/cardback_A.png" alt="Card A" class="card-image">
+                    </button>
+                </div>
+                <div class="card-container">
+                    <span class="card-label">B</span>
+                    <button class="card-button" id="btn-B" onclick="playRound('B')">
+                        <img src="images/cardback_B.png" alt="Card B" class="card-image">
+                    </button>
+                </div>
+                <div class="card-container">
+                    <span class="card-label">C</span>
+                    <button class="card-button" id="btn-C" onclick="playRound('C')">
+                        <img src="images/cardback_C.png" alt="Card C" class="card-image">
+                    </button>
+                </div>
+                <div class="card-container">
+                    <span class="card-label">D</span>
+                    <button class="card-button" id="btn-D" onclick="playRound('D')">
+                        <img src="images/cardback_D.png" alt="Card D" class="card-image">
+                    </button>
+                </div>
+            </div>
+            <div id="result">
+                <p class="result-text">本次選擇：<span id="choice"></span></p>
+                <p class="result-text blue">本次獎勵：<span id="reward"></span> 元</p>
+                <p class="result-text red">本次罰金：<span id="penalty"></span> 元</p>
+                <p class="result-text">本次淨收益：<span id="net-income"></span> 元</p>
+                <h2 class="total-income-text">目前擁有金額：<span id="total-income">2000</span> 元</h2>
+            </div>
+        </main>
+
+        <footer>
+            <button id="save-button" onclick="saveResults()">儲存結果</button>
+            <button id="restart-button" onclick="restartGame()">重新開始</button>
+        </footer>
+    </div>
+    <script src="js/igt.js"></script>
+</body>
+</html>
