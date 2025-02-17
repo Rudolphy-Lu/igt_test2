@@ -2,31 +2,32 @@ let currentTrial = 1;
 let totalIncome = 2000;
 let results = [];
 
+// 將牌組選項移出 playRound 函式，減少不必要的重建
+const options = {
+    A: { reward: 100, penaltyChoices: [0, 150, 250, 350], weights: [0.5, 0.2, 0.1, 0.2] },
+    B: { reward: 100, penaltyChoices: [0, 250], weights: [0.5, 0.5] },
+    C: { reward: 50, penaltyChoices: [0, 25, 50, 75], weights: [0.5, 0.2, 0.1, 0.2] },
+    D: { reward: 50, penaltyChoices: [0, 50], weights: [0.5, 0.5] }
+};
+
 function playRound(card) {
     if (currentTrial > 30) {
         alert("遊戲結束！");
         return;
     }
 
-    const options = {
-        A: { reward: 100, penalty: getPenalty([0, 150, 250, 350], [0.5, 0.2, 0.1, 0.2]) },
-        B: { reward: 100, penalty: getPenalty([0, 250], [0.5, 0.5]) },
-        C: { reward: 50, penalty: getPenalty([0, 25, 50, 75], [0.5, 0.2, 0.1, 0.2]) },
-        D: { reward: 50, penalty: getPenalty([0, 50], [0.5, 0.5]) },
-    };
+    if (!(card in options)) {
+        alert("無效的選擇！");
+        return;
+    }
 
-    const reward = options[card].reward;
-    const penalty = options[card].penalty;
+    // 直接使用 options 內的值來計算
+    const { reward, penaltyChoices, weights } = options[card];
+    const penalty = randomWeightedChoice(penaltyChoices, weights);
     const netIncome = reward - penalty;
     totalIncome += netIncome;
 
-    results.push({
-        trial: currentTrial,
-        card: card,
-        reward: reward,
-        penalty: penalty,
-        netIncome: netIncome
-    });
+    results.push({ trial: currentTrial, card, reward, penalty, netIncome });
 
     updateDisplay(card, reward, penalty, netIncome);
     currentTrial++;
@@ -50,10 +51,6 @@ function updateDisplay(card, reward, penalty, netIncome) {
     }
 }
 
-function getPenalty(values, weights) {
-    return randomWeightedChoice(values, weights);
-}
-
 function randomWeightedChoice(values, weights) {
     const totalWeight = weights.reduce((acc, weight) => acc + weight, 0);
     const randomNum = Math.random() * totalWeight;
@@ -68,28 +65,21 @@ function randomWeightedChoice(values, weights) {
 }
 
 function disableButtons() {
-    const buttons = document.querySelectorAll(".card-button");
-    buttons.forEach(button => {
-        button.disabled = true;
-    });
+    document.querySelectorAll(".card-button").forEach(button => button.disabled = true);
 }
 
 function enableButtons() {
-    const buttons = document.querySelectorAll(".card-button");
-    buttons.forEach(button => {
-        button.disabled = false;
-    });
+    document.querySelectorAll(".card-button").forEach(button => button.disabled = false);
 }
 
 function restartGame() {
-    const confirmRestart = confirm("確定要重新開始嗎？此操作將清除所有紀錄！");
-    if (!confirmRestart) return; // 如果使用者選擇「否」，則不執行重新開始
+    if (!confirm("確定要重新開始嗎？此操作將清除所有紀錄！")) return;
 
     currentTrial = 1;
     totalIncome = 2000;
     results = [];
-    
-    document.getElementById("trial-label").innerHTML = `已選擇 ${currentTrial-1}/30 次<br>請選擇一個牌組：`;
+
+    document.getElementById("trial-label").innerHTML = `已選擇 ${currentTrial - 1}/30 次<br>請選擇一個牌組：`;
     document.getElementById("choice").innerText = "";
     document.getElementById("reward").innerText = "";
     document.getElementById("penalty").innerText = "";
@@ -106,7 +96,7 @@ function saveResults() {
         return;
     }
 
-    const timestamp = new Date().toISOString().replace(/[:.]/g, '_').split('T')[0]; // 格式化時間戳
+    const timestamp = new Date().toISOString().replace(/[:.]/g, '_').split('T')[0];
     const filename = `result_${subjectId}_${timestamp}.csv`;
 
     const csvContent = generateCSV();
@@ -124,10 +114,8 @@ function generateCSV() {
 function downloadCSV(csvContent, filename) {
     const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
     const link = document.createElement("a");
-    const url = URL.createObjectURL(blob);
-    
-    link.setAttribute("href", url);
-    link.setAttribute("download", filename);
+    link.href = URL.createObjectURL(blob);
+    link.download = filename;
     link.style.visibility = 'hidden';
     document.body.appendChild(link);
     link.click();
