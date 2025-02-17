@@ -2,7 +2,7 @@ let currentTrial = 1;
 let totalIncome = 2000;
 let results = [];
 
-// 將牌組選項移出 playRound 函式，減少不必要的重建
+// 牌組獎懲選項定義
 const options = {
     A: { reward: 100, penaltyChoices: [0, 150, 250, 350], weights: [0.5, 0.2, 0.1, 0.2] },
     B: { reward: 100, penaltyChoices: [0, 250], weights: [0.5, 0.5] },
@@ -10,27 +10,17 @@ const options = {
     D: { reward: 50, penaltyChoices: [0, 50], weights: [0.5, 0.5] }
 };
 
-function playRound(card) {
-    if (currentTrial > 30) {
-        alert("遊戲結束！");
-        return;
+function randomWeightedChoice(values, weights) {
+    const totalWeight = weights.reduce((acc, weight) => acc + weight, 0);
+    const randomNum = Math.random() * totalWeight;
+    let cumulativeWeight = 0;
+
+    for (let i = 0; i < values.length; i++) {
+        cumulativeWeight += weights[i];
+        if (randomNum <= cumulativeWeight) {
+            return values[i];
+        }
     }
-
-    if (!(card in options)) {
-        alert("無效的選擇！");
-        return;
-    }
-
-    // 直接使用 options 內的值來計算
-    const { reward, penaltyChoices, weights } = options[card];
-    const penalty = randomWeightedChoice(penaltyChoices, weights);
-    const netIncome = reward - penalty;
-    totalIncome += netIncome;
-
-    results.push({ trial: currentTrial, card, reward, penalty, netIncome });
-
-    updateDisplay(card, reward, penalty, netIncome);
-    currentTrial++;
 }
 
 function updateDisplay(card, reward, penalty, netIncome) {
@@ -51,17 +41,27 @@ function updateDisplay(card, reward, penalty, netIncome) {
     }
 }
 
-function randomWeightedChoice(values, weights) {
-    const totalWeight = weights.reduce((acc, weight) => acc + weight, 0);
-    const randomNum = Math.random() * totalWeight;
-    let cumulativeWeight = 0;
-
-    for (let i = 0; i < values.length; i++) {
-        cumulativeWeight += weights[i];
-        if (randomNum <= cumulativeWeight) {
-            return values[i];
-        }
+function playRound(card) {
+    if (currentTrial > 30) {
+        alert("遊戲結束！");
+        return;
     }
+
+    if (!(card in options)) {
+        alert("無效的選擇！");
+        return;
+    }
+
+    // 使用 options 內的值來計算該次的獎懲
+    const { reward, penaltyChoices, weights } = options[card];
+    const penalty = randomWeightedChoice(penaltyChoices, weights);
+    const netIncome = reward - penalty;
+    totalIncome += netIncome;
+
+    results.push({ trial: currentTrial, card, reward, penalty, netIncome });
+
+    updateDisplay(card, reward, penalty, netIncome);
+    currentTrial++;
 }
 
 function disableButtons() {
